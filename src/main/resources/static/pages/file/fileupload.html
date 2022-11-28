@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="../../css/ionicons.min.css">
+		<link rel="stylesheet" href="../../css/upload.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="../../js/prompt.js"></script>
+		<script src="../../js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						alertDesc: '',
+						alertVisible: false,
+						dialogTitle: '',
+						dialogFormVisible: false,
+						dialogVisible: false,
+						files: []
+					}
+				},
+				mounted() {
+					this.$refs.content.style.display = 'block'
+					this.$refs.dialog.style.display = 'block'
+				},
+				methods: {
+					handleChange(file) {
+						this.files.push(file)
+					},
+					handleRemove(file) {
+						this.files.forEach((item, index) => {
+							if(item == file) {
+								this.files.splice(index, 1)
+							}
+						})
+					},
+					submit() {
+						if(this.files.length < 1) {
+							this.alertDesc = '请选择上传的文件!'
+							this.alertVisible = true
+							let thisz = this
+							setTimeout(() => {
+								thisz.alertVisible = false
+							}, 5000)
+							return
+						}
+						console.log(this.files)
+						alert('开始上传...')
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<span>文件管理</span><span>/上传文件</span>
+			</div>
+			<div id="content" ref="content">
+				<div>
+					单次上传文件不能超过20M，支持上传.jpg.jpeg.png.gif.bmp格式图片
+					<el-upload
+					    v-model:file-list="fileList"
+					    class="upload-demo"
+						accept="image/jpeg,image/png,image/gif,image/bmp"
+						action=""
+					    :on-change="handleChange"
+						:on-remove="handleRemove"
+						:auto-upload="false">
+					    <el-button type="default" id="selectFile">选择文件</el-button>
+					    <template #tip>
+					        <div class="el-upload__tip">
+					        </div>
+					    </template>
+					</el-upload>
+				</div>
+				<div class="btn-group">
+					<el-button type="primary" @click="submit">开始上传</el-button>
+				</div>
+			</div>
+			<div id="dialog" ref="dialog">
+				<el-alert v-show="alertVisible" @close="alertVisible = false"
+				    title="错误"
+				    type="error"
+				    :description="alertDesc"
+				    show-icon>
+				</el-alert>
+			</div>
+		</div>
+	</body>
+</html>

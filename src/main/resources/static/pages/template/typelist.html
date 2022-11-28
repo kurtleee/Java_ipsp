@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="../../css/ionicons.min.css">
+		<link rel="stylesheet" href="../../css/list.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="../../js/prompt.js"></script>
+		<script src="../../js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						searchContent: '',
+						pageTotal: 10,
+						rowTotal: 50,
+						pageNumber: 1,
+						submitStatus: 1,
+						selectionId: '',
+						alertDesc: '',
+						alertVisible: false,
+						dialogTitle: '',
+						dialogFormVisible: false,
+						dialogVisible: false,
+						formLabelWidth: '80px',
+						form: {
+							typeId: '',
+							typeParentId: '',
+							typeName: ''
+						},
+						tableData: [{
+								typeId: 1,
+								typeParentId: '',
+								typeName: '中科文峰企业模板',
+								children: [{
+										typeId: 4,
+										typeParentId: 1,
+										typeName: '中科企业模板一',
+									},{
+										typeId: 5,
+										typeParentId: 1,
+										typeName: '中科企业模板二',
+										children: [{
+												typeId: 6,
+												typeParentId: 5,
+												typeName: '自定义模板'
+											}
+										]
+									}
+								]
+							},{
+								typeId: 2,
+								typeParentId: '',
+								typeName: '汇都企业模板'
+							},{
+								typeId: 3,
+								typeParentId: '',
+								typeName: '戴尔企业模板'
+							}
+						],
+						parentData: []
+					}
+				},
+				mounted() {
+					this.$refs.content.style.display = 'block'
+					this.$refs.dialog.style.display = 'block'
+					this.selectInit(this.tableData, 1)
+				},
+				methods: {
+					dialogInit() {
+						this.$refs.typeName.ref.focus()
+					},
+					selectInit(dataList, level) {
+						for(let i in dataList) {
+							let row = dataList[i]
+							row.level = level
+							this.parentData.push(row)
+							if(row.children && row.children.length > 0) {
+								this.selectInit(row.children, level + 1)
+							}
+						}
+						//console.log(this.parentData)
+					},
+					add(row) {
+						this.submitStatus = 1
+						this.dialogTitle = '新增模板类型'
+						this.dialogFormVisible = true
+						this.form.typeId = ''
+						this.form.typeName = ''
+						this.form.typeParentId = ''
+						if(row) {
+							this.form.typeParentId = row.typeId
+						}
+					},
+					update(row) {
+						this.submitStatus = 2
+						this.dialogTitle = '修改模板类型'
+						this.dialogFormVisible = true
+						this.form.typeId = row.typeId
+						this.form.typeName = row.typeName
+						this.form.typeParentId = row.typeParentId
+					},
+					submit() {
+						let isSubmit = true
+						let focusField = null
+						let typeNameField = this.$refs.typeName.ref
+						let typeName = this.form.typeName
+						if(!typeName) {
+							showErrorMessage(typeNameField, '请输入模板类型!')
+							isSubmit = false
+							if(!focusField) {
+								focusField = typeNameField
+							}
+						} else {
+							offErrorMessage(typeNameField)
+						}
+						if(!isSubmit) {
+							focusField.focus()
+							return
+						}
+						console.log(this.form)
+						if(this.submitStatus == 1) {
+							alert('添加...');
+						} else {
+							alert('修改...');
+						}
+						this.dialogFormVisible = false
+					}, 
+					del(id) {
+						this.selectionId = id
+						this.dialogVisible = true
+					},
+					delSubmit() {
+						alert('单个删除..., ' + this.selectionId)
+						this.dialogVisible = false
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<span>系统管理</span><span>/模板分类</span>
+			</div>
+			<div id="content" ref="content">
+				<div>
+					<div class="btn-group">
+						<el-button type="primary" @click="add()">
+							<i class="icon ion-plus"></i>
+							新增
+						</el-button>
+					</div>
+					<el-table :data="tableData" row-key="typeId" class="tree-table"
+						default-expand-all>
+						<el-table-column prop="typeName" label="名称"></el-table-column>
+						<el-table-column label="操作" width="280" #default="scope">
+							<el-button type="primary" plain @click="add(scope.row)">
+								<i class="icon ion-plus"></i>
+								新增
+							</el-button>
+							<el-button type="success" plain @click="update(scope.row)">
+								<i class="icon ion-compose"></i>
+								编辑
+							</el-button>
+							<el-button type="danger" plain @click="del(scope.row.typeId)">
+								<i class="icon ion-android-delete"></i>
+								删除
+							</el-button>
+						</el-table-column>
+					</el-table>
+				</div>
+			</div>
+			<div id="dialog" ref="dialog">
+				<el-dialog class="oper-dialog" v-model="dialogFormVisible" 
+					:title="dialogTitle" @opened="dialogInit()">
+					<el-form :model="form">
+						<el-form-item label="上级类型" :label-width="formLabelWidth">
+							<el-select v-model="form.typeParentId" class="m-2" 
+								placeholder="根节点" style="width:100%;">
+							      <el-option
+									  v-for="item in parentData"
+									  :style="'text-indent:' + ((item.level - 1) * 24) + 'px;'"
+									  :label="(item.level > 1 ? '' : '') + item.typeName"
+									  :value="item.typeId">
+								  </el-option>
+							  </el-select>
+						</el-form-item>
+						<el-form-item label="类型名称" :label-width="formLabelWidth">
+							<el-input ref="typeName" v-model="form.typeName" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+					</el-form>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button type="primary" @click="submit()">
+								确认
+							</el-button>
+							<el-button @click="dialogFormVisible = false">
+								取消
+							</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-dialog v-model="dialogVisible" title="提示" width="30%" draggable>
+					<span>您是否删除选择的数据行?</span>
+					<template #footer>
+					    <span class="dialog-footer">
+						    <el-button @click="dialogVisible = false">取消</el-button>
+						    <el-button type="primary" @click="delSubmit()">
+								确定
+							</el-button>
+					    </span>
+					</template>
+				</el-dialog>
+				<el-alert v-show="alertVisible" @close="alertVisible = false"
+				    title="错误"
+				    type="error"
+				    :description="alertDesc"
+				    show-icon>
+				</el-alert>
+			</div>
+		</div>
+	</body>
+</html>

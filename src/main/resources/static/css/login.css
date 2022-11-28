@@ -1,0 +1,83 @@
+@charset "utf-8";
+
+body {
+	background-image: url(../img/bg.jpg);
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+#loginer {
+	position: fixed;
+	width: 420px;
+	height: 330px;
+	top: calc(50% - 200px);
+	left: calc(50% - 220px);
+	border-radius: 5px;
+	background-color: rgba(255, 255, 255, 0.5);
+	display: none;
+}
+
+#loginer .logo {
+	width: 80px !important;
+	height: 80px;
+	margin: 15px auto 15px;
+	border-radius: 40px;
+	background-color: rgba(166, 224, 255, 0.5);
+	box-shadow: 0px 0px 10px 3px #409EFF;
+	filter: brightness(120%);
+}
+
+#loginer .logo img {
+	margin-top: 20px;
+	margin-left: 30px;
+	filter: drop-shadow(0px 0px 5px #5da2df);
+}
+
+.el-form {}
+
+.el-form .el-form-item {
+	width: 100%;
+	padding: 5px 50px;
+	box-sizing: border-box;
+}
+
+.btns .el-form-item__content {
+	text-align: center;
+	justify-content: center;
+}
+
+.btns .el-form-item__content button {
+	width: 100px;
+	height: 36px;
+	margin-top: 8px;
+}
+
+.el-input__inner {
+	font-size: 14px;
+}
+
+.input-error {
+	position: absolute;
+	width: 100%;
+	top: calc(50% + 14px);
+	font-size: 12px;
+	font-weight: bold;
+	color: #dd3009;
+}
+
+.input-error-border .el-input__wrapper {
+	border: solid 2px #F56C6C;
+}
+
+.input-error-border .is-focus {
+	box-shadow: none;
+}
+
+.login-error {
+	margin:-5px 0px 0px;
+	font-size: 14px;
+	color:#ff4b1e;
+	text-align:center;
+	display: none;
+}
