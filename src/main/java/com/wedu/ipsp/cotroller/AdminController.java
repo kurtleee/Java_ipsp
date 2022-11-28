@@ -69,6 +69,14 @@ public class AdminController {
         return resultInfo;
     }
 
+    /*
+    * 根据用户ID批量删除用户
+    *
+    * @return
+    * */
+    @DeleteMapping(value  = "/delUserByIdBatch/{userID}")
+    public resultInfo
+
     /**
      * 查询所有用户信息
      *
