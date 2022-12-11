@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="../../css/ionicons.min.css">
+		<link rel="stylesheet" href="../../css/list.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="../../js/prompt.js"></script>
+		<script src="../../js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						serverUrl: 'http://127.0.0.1/',
+						searchContent: '',
+						pageTotal: 10,
+						rowTotal: 50,
+						pageNumber: 1,
+						submitStatus: 1,
+						selectionRows: [],
+						selectionId: '',
+						alertDesc: '',
+						alertVisible: false,
+						dialogTitle: '',
+						dialogFormVisible: false,
+						dialogVisible: false,
+						formLabelWidth: '80px',
+						form: {
+							userId: 0,
+							userAccount: '',
+							userNinkname: '',
+							userGender: '男',
+							userPhone: '',
+							userEmail: ''
+						},
+						tableData: []
+					}
+				},
+				mounted() {
+					this.$refs.content.style.display = 'block'
+					this.$refs.dialog.style.display = 'block'
+					this.findAll(this, 1)
+				},
+				methods: {
+					dialogInit() {
+						this.$refs.userAccount.ref.focus()
+					},
+					findAll(thisz, pageNum) {
+						let searchContent = thisz.searchContent ? thisz.searchContent : null
+						axios.get(thisz.serverUrl + 'admin/findAllUser/', {
+						    params: {
+						        pageNum: pageNum,
+							    pageSize: 5,
+								searchContent: searchContent
+						    }
+						}).then(function (response) {
+							let data = response.data.data
+							//let list = data.list
+							let list = data.list
+							for(let i in list) {
+								let item = list[i]
+								item.userPhone = item.userPhone ? item.userPhone : '--'
+								item.userEmail = item.userEmail ? item.userEmail : '--'
+								item.operTime = item.operTime ? item.operTime : '--'
+							}
+							thisz.tableData = list
+							thisz.rowTotal = data.total
+							thisz.pageTotal = data.pages
+							thisz.pageNumber = data.pageNum
+						}).catch(function (error) {
+						    console.log(error)
+						})
+					},
+					handleSelectionChange(rows) {
+						this.selectionRows = rows
+					},
+					handleCurrentChange(pageNum) {
+						this.findAll(this, pageNum)
+					},
+					search() {
+						this.findAll(this, 1)
+					},
+					add() {
+						this.submitStatus = 1
+						this.dialogTitle = '新增用户信息'
+						this.dialogFormVisible = true
+						this.form.userId = 0
+						this.form.userAccount = ''
+						this.form.userNinkname = ''
+						this.form.userGender = '男'
+						this.form.userPhone = ''
+						this.form.userEmail = ''
+					},
+					update(row) {
+						this.submitStatus = 2
+						this.dialogTitle = '修改用户信息'
+						this.dialogFormVisible = true
+						this.form.userId = row.userId
+						this.form.userAccount = row.userAccount
+						this.form.userNinkname = row.userNinkname
+						this.form.userGender = row.userGender
+						this.form.userPhone = row.userPhone
+						this.form.userEmail = row.userEmail
+						//console.log(row)
+					},
+					submit() {
+						let isSubmit = true
+						let focusField = null
+						let userAccountField = this.$refs.userAccount.ref
+						let userAccount = this.form.userAccount
+						if(!userAccount) {
+							showErrorMessage(userAccountField, '请输入帐号!')
+							isSubmit = false
+							if(!focusField) {
+								focusField = userAccountField
+							}
+						} else {
+							offErrorMessage(userAccountField)
+						}
+						let userNinknameField = this.$refs.userNinkname.ref
+						let userNinkname = this.form.userNinkname
+						if(!userNinkname) {
+							showErrorMessage(userNinknameField, '请输入昵称!')
+							isSubmit = false
+							if(!focusField) {
+								focusField = userNinknameField
+							}
+						} else {
+							offErrorMessage(userNinknameField)
+						}
+						if(!isSubmit) {
+							focusField.focus()
+							return
+						}
+						//console.log(this.form)
+						if(this.submitStatus == 2) {
+							let thisz = this
+							axios.put(this.serverUrl + 'admin/updateUser', this.form)
+							.then(function (response) {
+								//console.log(response)
+							    let data = response.data
+								if(data.flag) {
+									thisz.findAll(thisz, 1)
+								}
+							}).catch(function (error) {
+							    console.log(error);
+							});
+						}
+								if(this.submitStatus==1)
+						{
+							let thisz = this
+							axios.post(this.serverUrl + 'admin/addUser/', this.form)
+							.then(function (response) {
+								//console.log(response)
+							    let data = response.data
+								if(data.flag) {
+									thisz.findAll(thisz, 1)
+								}
+							}).catch(function (error) {
+							    console.log(error);
+							});
+						}
+						this.dialogFormVisible = false
+					}, 
+					del(id) {
+						this.selectionId = id
+						this.dialogVisible = true
+					},
+					delBatch() {
+						//console.log(this.selectionRows.length)
+						if(this.selectionRows.length < 1) {
+							this.alertDesc = '请至少选择1行数据!'
+							this.alertVisible = true
+							return
+						} 
+						this.alertVisible = false
+						this.dialogVisible = true
+					},
+					delSubmit() {
+						let thisz = this
+						if(this.selectionId) {
+							axios.delete(this.serverUrl + 'admin/delUserById/' + this.selectionId)
+							.then(function (response) {
+							    let data = response.data
+								if(data.flag) {
+									thisz.findAll(thisz, 1)
+								}
+							}).catch(function (error) {
+							    console.log(error);
+							});
+							this.selectionId = ''
+						} else {
+							let ids = []
+							for(let i in this.selectionRows) {
+								ids.push(this.selectionRows[i].userId)
+							}
+							axios.delete(this.serverUrl + 'admin/delUserById/' + ids)
+							.then(function (response) {
+							    let data = response.data
+								if(data.flag) {
+									thisz.findAll(thisz, 1)
+								}
+							}).catch(function (error) {
+							    console.log(error);
+							});
+						}
+						this.dialogVisible = false
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<span>系统管理</span><span>/用户管理</span>
+			</div>
+			<div id="content" ref="content">
+				<div>
+					<div class="btn-group">
+						<el-button type="primary" @click="add()">
+							<i class="icon ion-plus"></i>
+							新增
+						</el-button>
+						<el-button type="danger" @click="delBatch()">
+							<i class="icon ion-trash-a"></i>
+							删除
+						</el-button>
+					</div>
+					<div class="search">
+						<el-input v-model="searchContent" placeholder="请输入手机号/昵称">
+						    <template #append>
+								<el-button type="primary" @click="search()">
+									<i class="icon ion-search" ></i>
+								</el-button>
+							</template>
+						</el-input>
+					</div>
+					<el-table :data="tableData" class="table" 
+						@selection-change="handleSelectionChange">
+						<el-table-column type="selection" width="55">
+							<!-- <template #default="scope">
+								<input type="checkbox" :value="scope.row.userId" />
+							</template> -->
+						</el-table-column>
+						<el-table-column label="序号" width="100">
+							<template #default="scope">{{ scope.$index + 1 }}</template>
+						</el-table-column>
+						<el-table-column prop="userAccount" label="帐号"></el-table-column>
+						<el-table-column prop="userNinkname" label="昵称"></el-table-column>
+						<el-table-column prop="userGender" label="性别"></el-table-column>
+						<el-table-column prop="userPhone" label="手机号"></el-table-column>
+						<el-table-column prop="userEmail" label="邮箱" width="200"></el-table-column>
+						<el-table-column prop="operTime" label="操作时间" width="200"></el-table-column>
+						<el-table-column label="操作" width="200" #default="scope">
+							<el-button type="success" plain @click="update(scope.row)">
+								<i class="icon ion-compose"></i>
+								编辑
+							</el-button>
+							<el-button type="danger" plain @click="del(scope.row.userId)">
+								<i class="icon ion-android-delete"></i>
+								删除
+							</el-button>
+						</el-table-column>
+					</el-table>
+					<div class="page-bar">
+						<div class="page-info">
+							共{{rowTotal}}条记录,当前第{{pageNumber}}/{{pageTotal}}页
+						</div>
+						<el-pagination
+						    small
+						    background
+						    layout="prev, pager, next"
+						    :total="pageTotal * 10"
+							:current-page="pageNumber"
+						    class="mt-4"
+							@current-change="handleCurrentChange"
+						  />
+					</div>
+				</div>
+			</div>
+			<div id="dialog" ref="dialog">
+				<el-dialog class="oper-dialog" v-model="dialogFormVisible" 
+					:title="dialogTitle" @opened="dialogInit()">
+					<el-form :model="form">
+						<el-form-item label="帐号" :label-width="formLabelWidth">
+							<el-input ref="userAccount" v-model="form.userAccount" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+						<el-form-item label="昵称" :label-width="formLabelWidth">
+							<el-input ref="userNinkname" v-model="form.userNinkname" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+						<el-form-item label="性别" :label-width="formLabelWidth">
+							<!-- <el-select v-model="form.userGender" style="width:100%"
+								placeholder="Please select a zone">
+								<el-option key="1" label="男" value="1"></el-option>
+								<el-option key="2" label="女" value="0"></el-option>
+							</el-select> -->
+							<el-radio-group v-model="form.userGender" class="ml-4">
+								<el-radio label="男" size="large">男</el-radio>
+								<el-radio label="女" size="large">女</el-radio>
+							</el-radio-group>
+						</el-form-item>
+						<el-form-item label="手机" :label-width="formLabelWidth">
+							<el-input ref="userPhone" v-model="form.userPhone" autocomplete="off" />
+						</el-form-item>
+						<el-form-item label="邮箱" :label-width="formLabelWidth">
+							<el-input ref="userEmail" v-model="form.userEmail" autocomplete="off" />
+						</el-form-item>
+					</el-form>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button type="primary" @click="submit()">
+								确认
+							</el-button>
+							<el-button @click="dialogFormVisible = false">
+								取消
+							</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-dialog v-model="dialogVisible" title="提示" width="30%" draggable>
+					<span>您是否删除选择的数据行?</span>
+					<template #footer>
+					    <span class="dialog-footer">
+						    <el-button @click="dialogVisible = false">取消</el-button>
+						    <el-button type="primary" @click="delSubmit()">
+								确定
+							</el-button>
+					    </span>
+					</template>
+				</el-dialog>
+				<el-alert v-show="alertVisible" @close="alertVisible = false"
+				    title="错误"
+				    type="error"
+				    :description="alertDesc"
+				    show-icon>
+				</el-alert>
+			</div>
+		</div>
+	</body>
+</html>

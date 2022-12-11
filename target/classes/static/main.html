@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="css/ionicons.min.css">
+		<link rel="stylesheet" href="css/main.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+		<script src="js/echarts.min.js"></script>
+		<script src="js/main.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						currentData: {
+							registers: [0, 10, 15, 10, 50, 5, 30],
+							parses: [20, 32, 25, 24, 90, 30, 10]
+						},
+						registerRateData: {
+							registerTotal: 256,
+							visitTotal: 879
+						},
+						historyData: {
+							registers: [132, 300, 134, 90, 230, 210],
+							parses: [220, 182, 234, 290, 330, 310],
+						}
+					}
+				},
+				mounted() { 
+					currentLineChart(this.$refs.currentLineChart, this.currentData)
+					registerPieChart(this.$refs.registerPieChart, this.registerRateData)
+					historyLineChart(this.$refs.historyLineChart, this.historyData)
+				},
+				methods: {
+					
+				}
+			};
+			const app = Vue.createApp(App)
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="grid-row">
+				<div class="grid-column-2 card">
+					<p>1135</p>
+					<p>访问总量</p>
+					<div><i class="icon ion-link"></i></div>
+				</div>
+				<div class="grid-column-2 card">
+					<p>256</p>
+					<p>注册总量</p>
+					<div><i class="icon ion-person-stalker"></i></div>
+				</div>
+				<div class="grid-column-2 card">
+					<p>128</p>
+					<p>标识总量</p>
+					<div><i class="icon ion-network"></i></div>
+				</div>
+				<div class="grid-column-2 card">
+					<p>53</p>
+					<p>实时总量</p>
+					<div><i class="icon ion-monitor"></i></div>
+				</div>
+			</div>
+			<div class="grid-row">
+				<div ref="currentLineChart" class="grid-column-6"></div>
+				<div ref="registerPieChart" class="grid-column-2"></div>
+			</div>
+			<div class="grid-row">
+				<div ref="historyLineChart" class="grid-column-8"></div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="css/ionicons.min.css">
+		<link rel="stylesheet" href="css/detail.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue"></script>
+		<script src="js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						idenId: 1,
+						idenNumber: '88.168.100/00001',
+						dataTempId: 1,
+						showTempId: 1,
+						operTime: '2022-11-11 16:40:25',
+						itemData: [{
+							type: '4',
+							title: '',
+							value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/product1.jpeg'
+						},{
+							type: '1',
+							title: '',
+							value: '产品介绍'
+						},{
+							type: '1',
+							title: '芯片',
+							value: 'STM32F103VET6  嵌入式 - 微控制器'
+						},{
+							type: '4',
+							title: '',
+							value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/frontoffice1.jpeg'
+						},{
+							type: '1',
+							title: '',
+							value: '公司介绍'
+						},{
+							type: '1',
+							title: '扬州中科文峰科技有限公司',
+							value: '经营范围包括一般项目：技术服务、技术开发、技术咨询、技术交流、技术转让、技术推广。'
+						},{
+							type: '1',
+							title: '公司地址',
+							value: '扬州市生态科技新城杭集镇曙光路579号5号楼'
+						}]
+					}
+				},
+				mounted() {
+					
+				},
+				methods: {
+					
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<p>工业互联标识二级节点</p>
+				<p>标识码: {{idenNumber}}</p>
+			</div>
+			<div id="content">
+				<div class="row">
+					<div v-for="item in itemData">
+						<div>
+							<img :src="item.value" v-if="item.type==4" width="900" class="image-big" />
+							<div v-if="item.type==1 && item.title" class="text-content">
+								<div>{{item.title}}</div>
+								<div>{{item.value}}</div>
+							</div>
+							<div v-if="item.type==1 && !item.title" class="text-title">{{item.value}}</div>
+						</div>
+					</div>
+				</div>
+				<div id="footer"></div>
+			</div>
+		</div>
+	</body>
+</html>

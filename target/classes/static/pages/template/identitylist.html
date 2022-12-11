@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="../../css/ionicons.min.css">
+		<link rel="stylesheet" href="../../css/list.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="../../js/prompt.js"></script>
+		<script src="../../js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						userAccount: '88.168.100',
+						searchContent: '',
+						pageTotal: 1,
+						rowTotal: 3,
+						pageNumber: 1,
+						submitStatus: 1,
+						selectionId: 0,
+						selectionRows: [],
+						alertDesc: '',
+						alertVisible: false,
+						dialogTitle: '',
+						dialogFormVisible: false,
+						dialogShowVisible: false,
+						dialogVisible: false,
+						formLabelWidth: '70px',
+						qrcodeUrl: '../../img/qrcode.jpg',
+						typeArray: ['文本', '超链接', 'HTML', '图像', '视频'],
+						form: {
+							idenId: 0,
+							idenNumber: '',
+							dataTempId: '',
+							showTempId: '',
+							idenUrl: '',
+							operTime: '',
+							idenItemData: []
+						},
+						dataTempData: [{
+							value: 1,
+							label: '中科文峰企业模板',
+							children: [{
+								value: 4,
+								label: '中科企业模板一',
+								children: [{
+									value: 1,
+									label: '中科企业-数据模板一',
+									isLeaf: true
+								}]
+							}, {
+								value: 5,
+								label: '中科企业模板二',
+								children: [{
+									value: 6,
+									label: '自定义模板',
+									children: [],
+									disabled: true
+								},{
+									value: 2,
+									label: '中科企业-数据模板二',
+									isLeaf: true
+								}]
+							}]
+						}, {
+							value: 2,
+							label: '汇都企业模板',
+							children: [{
+								value: 3,
+								label: '默认数据模板',
+								isLeaf: true
+							}]
+						}, {
+							value: 3,
+							label: '戴尔企业模板',
+							children: [],
+							disabled: true
+						}],
+						dataTempItemData: [{
+							tempId: 1,
+							tempItemData: [{
+								type: '4',
+								title: '',
+								value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/product1.jpeg'
+							},{
+								type: '1',
+								title: '',
+								value: '产品介绍'
+							},{
+								type: '1',
+								title: '芯片',
+								value: 'STM32F103VET6  嵌入式 - 微控制器'
+							},{
+								type: '4',
+								title: '',
+								value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/frontoffice1.jpeg'
+							},{
+								type: '1',
+								title: '',
+								value: '公司介绍'
+							},{
+								type: '1',
+								title: '扬州中科文峰科技有限公司',
+								value: '经营范围包括一般项目：技术服务、技术开发、技术咨询、技术交流、技术转让、技术推广。'
+							},{
+								type: '1',
+								title: '公司地址',
+								value: '扬州市生态科技新城杭集镇曙光路579号5号楼'
+							}]
+						}, {
+							tempId: 2,
+							tempItemData: [{
+								type: '1',
+								title: 'aaa',
+								value: ''
+							}]
+						}, {
+							tempId: 3,
+							tempItemData: [{
+								type: '1',
+								title: 'aaa',
+								value: ''
+							}, {
+								type: '2',
+								title: 'bbb',
+								value: ''
+							}]
+						}],
+						tableData: [{
+							idenId: 1,
+							idenNumber: '88.168.100/00001',
+							dataTempId: 1,
+							showTempId: 1,
+							operTime: '2022-11-11 16:40:25'
+						}, {
+							idenId: 2,
+							idenNumber: '88.168.100/00002',
+							dataTempId: 2,
+							showTempId: 1,
+							operTime: '2022-11-11 16:38:55',
+						}, {
+							idenId: 3,
+							idenNumber: '88.168.100/00003',
+							dataTempId: 3,
+							showTempId: 1,
+							operTime: '2022-11-11 16:30:16',
+						}]
+					}
+				},
+				mounted() {
+					this.$refs.content.style.display = 'block'
+					this.$refs.dialog.style.display = 'block'
+				},
+				methods: {
+					dialogInit() {
+						this.$refs.idenNumber.ref.focus()
+					},
+					handleSelectionChange(rows) {
+						this.selectionRows = rows
+					},
+					handleCascaderChange(value) {
+						offErrorMessage(this.$refs.dataTempId.input.input, true)
+						let tempId = value[value.length-1]
+						for(let i in this.dataTempItemData) {
+							let itemData = this.dataTempItemData[i]
+							if(itemData.tempId == tempId) {
+								this.form.idenItemData = JSON.parse(JSON.stringify(itemData.tempItemData))
+							}
+						}
+					},
+					addTempItem() {
+						this.form.idenItemData.push({
+							type: '1',
+							title: '',
+							value: ''
+						})
+					},
+					delTempItem(item) {
+						let idenItemData = this.form.idenItemData
+						for (let i in idenItemData) {
+							if (idenItemData[i] == item) {
+								idenItemData.splice(i, 1)
+								break
+							}
+						}
+					},
+					moveUp(item) {
+						let idenItemData = this.form.idenItemData
+						for (let i in idenItemData) {
+							if (idenItemData[i] == item && i > 0) {
+								let tmp = idenItemData[i]
+								idenItemData[i] = idenItemData[i - 1]
+								idenItemData[i - 1] = tmp
+								break
+							}
+						}
+					},
+					moveDown(item) {
+						let idenItemData = this.form.idenItemData
+						for (let i in idenItemData) {
+							if (idenItemData[i] == item && i < idenItemData.length - 1) {
+								i = parseInt(i)
+								let tmp = idenItemData[i]
+								idenItemData[i] = idenItemData[i + 1]
+								idenItemData[i + 1] = tmp
+								break
+							}
+						}
+					},
+					showItem(item) {
+						let type = item.type
+						let value = item.value
+						if(type == 2 || type == 4 || type == 5) {
+							if(value && value.startsWith('http://')) {
+								let newWindow = window.open(value)
+								if(type == 4 || type == 5) {
+									setTimeout(() => {
+										newWindow.document.title='工业互联网标识服务平台'
+									}, 1000)
+								}
+							}
+						}
+					},
+					viewItem(item) {
+						console.log(item)
+					},
+					detail(idenUrl) {
+						window.open(idenUrl)
+					},
+					search() {
+						alert(this.searchContent)
+					},
+					add() {
+						this.submitStatus = 1
+						this.dialogTitle = '新增标识信息'
+						this.dialogFormVisible = true
+						this.form.idenId = 0
+						this.form.idenNumber = ''
+						this.form.dataTempId = 0
+						this.form.showTempId = '1'
+						this.form.idenItemData = []
+					},
+					update(row) {
+						this.submitStatus = 2
+						this.dialogTitle = '修改标识信息'
+						this.dialogFormVisible = true
+						this.form.idenId = row.idenId
+						this.form.idenNumber = row.idenNumber
+						this.form.dataTempId = row.dataTempId
+						this.form.showTempId = row.showTempId + ''
+						this.form.idenItemData = []
+						for(let i in this.dataTempItemData) {
+							let itemData = this.dataTempItemData[i]
+							if(itemData.tempId == row.dataTempId) {
+								this.form.idenItemData = itemData.tempItemData
+							}
+						}
+					},
+					view(row) {
+						this.dialogTitle = '标识详细信息'
+						this.dialogShowVisible = true
+						this.form.idenId = row.idenId
+						this.form.idenNumber = row.idenNumber
+						this.form.dataTempId = row.dataTempId
+						this.form.showTempId = row.showTempId + ''
+						this.form.idenUrl = location.protocol + '//' 
+							+ window.location.host 
+							+ '/tits-ms-v2/detail.html?id=' 
+							+ row.idenNumber
+						this.form.operTime = row.operTime
+						this.form.idenItemData = []
+						for(let i in this.dataTempItemData) {
+							let itemData = this.dataTempItemData[i]
+							if(itemData.tempId == row.dataTempId) {
+								this.form.idenItemData = itemData.tempItemData
+							}
+						}
+					},
+					submit() {
+						let isSubmit = true
+						let focusField = null
+						let idenNumberField = this.$refs.idenNumber.ref
+						let idenNumber = this.form.idenNumber
+						if (!idenNumber) {
+							showErrorMessage(idenNumberField, '请输入标识码!')
+							isSubmit = false
+							if (!focusField) {
+								focusField = idenNumberField
+							}
+						} else {
+							offErrorMessage(idenNumberField)
+						}
+						let dataTempIdField = this.$refs.dataTempId.input
+						let dataTempId = this.form.dataTempId
+						if(!dataTempId) {
+							showErrorMessage(dataTempIdField.input, '请选择数据模板', true)
+							isSubmit = false
+							if(!focusField) {
+								focusField = dataTempIdField
+							}
+						} else {
+							offErrorMessage(dataTempIdField.input, true)
+						}
+						if (!isSubmit) {
+							focusField.focus()
+							return
+						}
+						if(typeof dataTempId == 'object') {
+							this.form.dataTempId = dataTempId[dataTempId.length-1]
+						}
+						if(this.submitStatus == 1) {
+							this.form.idenNumber = this.userAccount + '/' + this.form.idenNumber
+							alert('新增...');
+						} else {
+							alert('修改...');
+						}
+						console.log(this.form)
+						this.dialogFormVisible = false
+					},
+					del(row) {
+						this.selectionId = row.idenId
+						this.alertVisible = false
+						this.dialogVisible = true
+					},
+					delBatch() {
+						if (this.selectionRows.length < 1) {
+							this.alertDesc = '请至少选择1行数据!'
+							this.alertVisible = true
+							return
+						}
+						this.selectionId = 0
+						this.alertVisible = false
+						this.dialogVisible = true
+					},
+					delSubmit() {
+						if(this.selectionId) {
+							alert('单项删除..., ' + this.selectionId)
+						} else {
+							alert('批量删除...')
+							console.log(this.selectionRows)
+						}
+						this.dialogVisible = false
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<span>系统管理</span><span>/标识管理</span>
+			</div>
+			<div id="content" ref="content">
+				<div>
+					<div class="btn-group">
+						<el-button type="primary" @click="add()">
+							<i class="icon ion-plus"></i>
+							新增
+						</el-button>
+						<el-button type="danger" @click="delBatch()">
+							<i class="icon ion-trash-a"></i>
+							删除
+						</el-button>
+					</div>
+					<div class="search">
+						<el-input v-model="searchContent" placeholder="请输入标识码">
+							<template #append>
+								<el-button type="primary" @click="search()">
+									<i class="icon ion-search"></i>
+								</el-button>
+							</template>
+						</el-input>
+					</div>
+					<el-table :data="tableData" class="table" @selection-change="handleSelectionChange">
+						<el-table-column type="selection" width="55">
+						</el-table-column>
+						<el-table-column label="序号" width="60">
+							<template #default="scope">{{ scope.$index + 1 }}</template>
+						</el-table-column>
+						<el-table-column prop="idenNumber" label="标识码"></el-table-column>
+						<el-table-column prop="operTime" label="操作时间"></el-table-column>
+						<el-table-column label="操作" width="260" #default="scope">
+							<el-button type="primary" plain @click="view(scope.row)">
+								<i class="icon ion-document-text"></i>
+								查看
+							</el-button>
+							<el-button type="success" plain @click="update(scope.row)">
+								<i class="icon ion-document-text"></i>
+								编辑
+							</el-button>
+							<el-button type="danger" plain @click="del(scope.row)">
+								<i class="icon ion-document-text"></i>
+								删除
+							</el-button>
+						</el-table-column>
+					</el-table>
+					<div class="page-bar">
+						<div class="page-info">
+							共{{rowTotal}}条记录,当前第{{pageNumber}}/{{pageTotal}}页
+						</div>
+						<el-pagination small background layout="prev, pager, next" :total="pageTotal * 10"
+							class="mt-4" />
+					</div>
+				</div>
+			</div>
+			<div id="dialog" ref="dialog">
+				<el-dialog class="template-dialog" v-model="dialogFormVisible" :title="dialogTitle"
+					@opened="dialogInit()">
+					<el-form :model="form">
+						<el-form-item label="标识码" :label-width="formLabelWidth" class="form-column-8 form-column-left form-perpend">
+							<el-input ref="idenNumber" v-model="form.idenNumber" autocomplete="off">
+								<template #prepend v-if="submitStatus == 1">
+									{{userAccount}}
+								</template>
+							</el-input>
+						</el-form-item>
+						<el-form-item label="数据模板" :label-width="formLabelWidth" class="form-column-4 form-column-left">
+							<el-el-cascader ref="dataTempId" v-model="form.dataTempId" :show-all-levels="false"
+								:options="dataTempData" placeholder="请选择..."
+								style="width:100%;" @change="handleCascaderChange"></el-el-cascader>
+						</el-form-item>
+						<el-form-item label="展示模板" :label-width="formLabelWidth"
+							class="form-column-4 form-column-right">
+							<el-select ref="showTempId" v-model="form.showTempId" style="width:100%;">
+								<el-option label="多板块模板" value="1"></el-option>
+							</el-select>
+						</el-form-item>
+						<el-divider></el-divider>
+						<el-form-item>
+							<el-button type="default" style="width:100%;border-style:dashed;" @click="addTempItem()">
+								增加一条</el-button>
+						</el-form-item>
+						<el-form-item class="grid">
+							<div class="grid-row">
+								<div class="grid-column-1">序号</div>
+								<div class="grid-column-2">类型</div>
+								<div class="grid-column-15">内容</div>
+								<div class="grid-column-2">操作</div>
+							</div>
+							<div class="grid-row" v-for="(item,index) in form.idenItemData">
+								<div class="grid-column-1">{{ index + 1 }}</div>
+								<div class="grid-column-2">
+									<el-select v-model="item.type">
+										<el-option label="文本" value="1"></el-option>
+										<el-option label="超链接" value="2"></el-option>
+										<el-option label="HTML" value="3"></el-option>
+										<el-option label="图像" value="4"></el-option>
+										<el-option label="视频" value="5"></el-option>
+									</el-select>
+								</div>
+								<div class="grid-column-5">
+									<el-input v-model="item.title" placeholder="">
+										<template #prepend>标题</template>
+									</el-input>
+								</div>
+								<div class="grid-column-10">
+									<el-input v-model="item.value" placeholder="">
+										<template #prepend>
+											{{item.type==1 || item.type==3 ? '值' : 'URL' }}
+										</template>
+										<template #append v-if="item.type==2 || item.type==4 || item.type==5">
+											<i class="icon ion-eye" @click="showItem(item)"></i>
+										</template>
+									</el-input>
+								</div>
+								<div class="grid-column-2">
+									<el-button type="primary" circle @click="moveUp(item)">
+										<i class="icon ion-arrow-up-a"></i>
+									</el-button>
+									<el-button type="success" circle @click="moveDown(item)">
+										<i class="icon ion-arrow-down-a"></i>
+									</el-button>
+									<el-button type="danger" circle @click="delTempItem(item)">
+										<i class="icon ion-android-delete"></i>
+									</el-button>
+								</div>
+							</div>
+						</el-form-item>
+					</el-form>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button type="primary" @click="submit()">确认</el-button>
+							<el-button @click="dialogFormVisible = false">取消</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-dialog class="template-dialog" v-model="dialogShowVisible" :title="dialogTitle">
+					<div class="qrcode">
+						<img :src="qrcodeUrl" width="175" height="180" />
+					</div>
+					<el-form :model="form">
+						<el-form-item label="标识码" :label-width="formLabelWidth" class="form-column-6 form-column-right">
+							<el-input v-model="form.idenNumber" autocomplete="off"></el-input>
+						</el-form-item>
+						<el-form-item label="展示模板" :label-width="formLabelWidth" class="form-column-6 form-column-right">
+							<el-select v-model="form.showTempId" style="width:100%;">
+								<el-option label="多板块模板" value="1"></el-option>
+							</el-select>
+						</el-form-item>
+						<el-form-item label="URL" :label-width="formLabelWidth" class="form-column-6 form-column-right">
+							<el-input v-model="form.idenUrl" autocomplete="off" class="form-append-blue">
+								<template #append>
+								    <el-button @click="detail(form.idenUrl)">查看</el-button>
+								</template>
+							</el-input>
+						</el-form-item>
+						<el-form-item label="更新时间" :label-width="formLabelWidth" class="form-column-6 form-column-right">
+							<el-input v-model="form.operTime" autocomplete="off"></el-input>
+						</el-form-item>
+					</el-form>
+					<el-divider></el-divider>
+					<el-table :data="form.idenItemData" class="table">
+						<el-table-column label="序号" width="100">
+							<template #default="scope">{{ scope.$index + 1 }}</template>
+						</el-table-column>
+						<el-table-column label="类型">
+							<template #default="scope">{{ typeArray[scope.row.type] }}</template>
+						</el-table-column>
+						<el-table-column prop="title" label="标题"></el-table-column>
+						<el-table-column prop="value" label="值"></el-table-column>
+						<el-table-column label="操作" width="200" #default="scope">
+							<el-button type="primary" plain @click="viewItem(scope.row)">
+								<i class="icon ion-document-text"></i>
+								查看
+							</el-button>
+						</el-table-column>
+					</el-table>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button @click="dialogShowVisible = false">关闭</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-dialog v-model="dialogVisible" title="提示" width="30%" draggable>
+					<span>您是否删除选择的数据行?</span>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button @click="dialogVisible = false">取消</el-button>
+							<el-button type="primary" @click="delSubmit()">
+								确定
+							</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-alert v-show="alertVisible" @close="alertVisible = false" title="错误" type="error"
+					:description="alertDesc" show-icon>
+				</el-alert>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="css/ionicons.min.css">
+		<link rel="stylesheet" href="css/index.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue"></script>
+		<script src="js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						userCenterVisible: false,
+						expandId: 1,
+						permData: [{
+							permId: 1,
+							permName: '系统管理',
+							permUrl: '',
+							parentId: ''
+						},{
+							permId: 2,
+							permName: '用户管理',
+							permUrl: 'pages/user/userlist.html',
+							parentId: '1'
+						},{
+							permId: 3,
+							permName: '权限管理',
+							permUrl: 'main.html',
+							parentId: '1'
+						},{
+							permId: 4,
+							permName: '用户模板',
+							permUrl: '',
+							parentId: '',
+						},{
+							permId: 5,
+							permName: '模板分类',
+							permUrl: 'pages/template/typelist.html',
+							parentId: '4'
+						},{
+							permId: 6,
+							permName: '用户数据模板',
+							permUrl: 'pages/template/templatelist.html',
+							parentId: '4'
+						},{
+							permId: 7,
+							permName: '标识管理',
+							permUrl: 'pages/template/identitylist.html',
+							parentId: '4'
+						},{
+							permId: 8,
+							permName: '我的标识',
+							permUrl: 'main.html',
+							parentId: '7'
+						},{
+							permId: 9,
+							permName: '创建标识',
+							permUrl: 'main.html',
+							parentId: '7'
+						},{
+							permId: 10,
+							permName: '业务管理',
+							permUrl: 'main.html',
+							parentId: ''
+						},{
+							permId: 11,
+							permName: '标识创建业务',
+							permUrl: 'main.html',
+							parentId: '10'
+						},{
+							permId: 12,
+							permName: '标识修改业务',
+							permUrl: 'main.html',
+							parentId: '10'
+						},{
+							permId: 13,
+							permName: '标识删除业务',
+							permUrl: 'main.html',
+							parentId: '10'
+						},{
+							permId: 14,
+							permName: '文件管理',
+							permUrl: 'main.html',
+							parentId: ''
+						},{
+							permId: 15,
+							permName: '我的文件',
+							permUrl: 'pages/file/filelist.html',
+							parentId: '14'
+						},{
+							permId: 16,
+							permName: '上传文件',
+							permUrl: 'pages/file/fileupload.html',
+							parentId: '14'
+						}]
+					}
+				},
+				mounted() {
+					this.$refs.permMenu.style.display = 'block'
+				},
+				methods: {
+					toggleUserCenter() {
+						this.$refs.userCenter.style.visibility = 'visible'
+						this.userCenterVisible = !this.userCenterVisible
+					},
+					toggleMenu(perm) {
+						//console.log(perm)
+						if(!perm.parentId) {
+							if(this.expandId != perm.permId) {
+								this.expandId = perm.permId
+							} else {
+								this.expandId = 0
+							}
+						}
+					},
+					toHome() {
+						mainFrame.location.href = 'main.html'
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+				app.component(key, component)
+			}
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<img src="img/logo.png" class="logo" />
+				<img src="img/portrait1.jpg" width="46" height="46" class="portrait" />
+				<div class="title" @click="toHome()">
+					<p>工业互联网标识</p>
+					<p>service platform</p>
+				</div>
+				<div class="user-info">
+					<el-icon><Avatar /></el-icon> <span @click="toggleUserCenter()">Admin[管理员]</span>
+				</div>
+			</div>
+			<div id="sidebar">
+				<ul ref="permMenu">
+					<li v-for="perm in permData" :id="perm.permId" :parentId="perm.parentId"
+						:class="!perm.parentId ? 'active' : ''"
+						:style="!perm.parentId || perm.parentId==expandId ? '' : 'height:0px;line-height:0px;'"
+						@click="toggleMenu(perm)">
+						<a :href="perm.parentId ? perm.permUrl : 'javascript:void(0);'" 
+							target="mainFrame">{{perm.permName}}
+							<i :class="perm.permId==expandId ? 'icon ion-ios-arrow-up ion-right' 
+								: 'icon ion-ios-arrow-down ion-right' " v-if="!perm.parentId"></i></a>
+					</li>
+				</ul>
+			</div>
+			<div id="main">
+				<iframe src="main.html" id="mainFrame" name="mainFrame" width="100%"
+						height="100%" frameborder="0"></iframe>
+			</div>
+		    <div class="user-center" v-show="userCenterVisible" ref="userCenter">
+		    	<p><a href="#">详细信息</a></p>
+		    	<p><a href="#">修改密码</a></p>
+		    	<p><a href="login.html">注销</a></p>
+		    </div>
+		</div>
+	</body>
+</html>

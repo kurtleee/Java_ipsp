@@ -1,0 +1,81 @@
+@charset "utf-8";
+@charset "utf-8";
+
+body {
+	margin: 10px;
+	font-size: 14px;
+}
+
+#header {
+	position: relative;
+	width: 100%;
+	margin: 30px 0px;
+}
+
+#header span:first-child {
+	font-size: 16px;
+	color: #333333;
+}
+
+#header span:last-child {
+	display: inline-block;
+	margin-left: 5px;
+	font-size: 14px;
+	color: #5A5A5A;
+}
+
+#content {
+	position: relative;
+	width: 100%;
+	min-width: 800px;
+	border: solid 1px transparent;
+	border-radius: 5px;
+	background-color: #FFFFFF;
+	display: none;
+}
+
+#content > div {
+	position: relative;
+	width: 98%;
+	margin: 10px auto;
+	border: solid 1px #FFFFFF;
+}
+
+#content > div.btn-group {
+	text-align: center;
+}
+
+#content > div > .el-button {
+	margin: 0px 50px;
+}
+
+#selectFile {
+	position: absolute;
+	left: 550px;
+	top: -5px;
+}
+
+i.icon {
+	font-size: 14px;
+	margin-right: 5px;
+}
+
+.el-button {
+	font-size: 12px;
+}
+
+.el-input {
+	font-size: 12px;
+}
+
+#dialog {
+	display: none;
+}
+
+#dialog .el-alert {
+  position: absolute;
+  width: 500px;
+  top: 50px;
+  left: calc(50% - 250px);
+  z-index: 10;
+}

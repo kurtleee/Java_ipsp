@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<!-- <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css"> -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="css/login.css" />
+		<!-- <script src="https://unpkg.com/vue@next"></script>
+		<script src="https://unpkg.com/element-plus"></script>
+		<script src="https://unpkg.com/@element-plus/icons-vue"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue"></script>
+		<script src="js/prompt.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						account: '',
+						password: ''
+					}
+				},
+				mounted() {
+					//console.log(this.$refs.test)
+					//console.log(this.$refs.form1)
+					//console.log(this.$refs.account, this.$refs.account.ref)
+					this.$refs.loginer.style.display = "block"
+					this.$refs.account.ref.focus()
+				},
+				methods: {
+					submit: function() {
+						//alert(this.account + ',' + this.password)
+						let accountField = this.$refs.account.ref
+						let passwordField = this.$refs.password.ref
+						let account = this.account
+						let password = this.password
+						if(!account) {
+							showErrorMessage(accountField, '请输入帐号/手机号/邮箱!')
+							accountField.focus()
+							return
+						} else {
+							offErrorMessage(accountField)
+						}
+						if(!password) {
+							showErrorMessage(passwordField, '请输入密码!')
+							passwordField.focus()
+							return
+						} else {
+							offErrorMessage(passwordField)
+						}
+						if(password && (password.length < 6 || password.length > 16)) {
+							showErrorMessage(passwordField, '请输入6~16位的字母/数字/下划线!')
+							passwordField.focus()
+								return
+						} else {
+							offErrorMessage(passwordField)
+						}
+						//登录，提交数据
+						location.href = 'index.html'
+					}
+				}
+			}
+			const app = Vue.createApp(App);
+			app.use(ElementPlus);
+			for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+				app.component(key, component)
+			}
+			let vm = null
+			onload = () => {
+				vm = app.mount("#app");
+			}
+		</script>
+
+	</head>
+	<body>
+		<div id="app">
+			<div id="loginer" ref="loginer">
+				<p class="logo">
+					<img src="img/logo.png"/>
+				</p>
+				<el-form>
+					<el-form-item>
+						<el-input
+							v-model="account"
+							class="w-50 m-2"
+							size="large"
+							placeholder="帐号/手机号/邮箱"
+							prefix-icon="User"
+							required="required"
+							ref="account"
+							/>
+					</el-form-item>
+					<el-form-item>
+						<el-input
+							v-model="password"
+							type="password"
+							class="w-50 m-2"
+							size="large"
+							placeholder="密码"
+							prefix-icon="Lock"
+							ref="password"/>
+					</el-form-item>
+					<p class="login-error">帐号或密码错误!</p>
+					<el-form-item class="btns">
+						<el-button type="primary" @click="submit()">登 录</el-button>
+					</el-form-item>
+				</el-form>
+			</div>
+		</div>
+	</body>
+</html>
