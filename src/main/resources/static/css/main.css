@@ -1,0 +1,124 @@
+@charset "utf-8";
+
+body {
+	margin: 0px;
+}
+
+#app {
+	position: relative;
+	width: 98%;
+	min-width: 800px;
+	margin: 10px auto;
+}
+
+.grid-row {
+	display: flex;
+	min-height: 120px;
+	margin: 10px 0px;
+	justify-content: space-between;
+}
+
+.grid-row > div {
+	position: relative;
+	height: 100%;
+	border-radius: 3px;
+	background-color: #CCCCCC;
+}
+
+.grid-row:first-child {
+	width: 100%;
+	height: 120px;
+}
+
+.grid-row:nth-child(2) {
+	width: 100%;
+	height: 250px;
+}
+
+.grid-row:last-child {
+	width: 100%;
+	height: 250px;
+}
+
+.grid-row:first-child > div:nth-child(1) {
+	background-image: linear-gradient(to right, #8bb4ff, #7698e8);
+}
+
+.grid-row:first-child > div:nth-child(2) {
+	background-image: linear-gradient(to right, #6ad8ca, #54aca2);
+}
+
+.grid-row:first-child > div:nth-child(3) {
+	background-image: linear-gradient(to right, #ffac1d, #e89d1b);
+}
+
+.grid-row:first-child > div:nth-child(4) {
+	background-image: linear-gradient(to right, #affe7a, #a0e870);
+}
+
+.grid-row:nth-child(2) > div:first-child {
+	background-color: #FFFFFF;
+}
+
+.grid-row:nth-child(2) > div:last-child {
+	background-color: #FFFFFF;
+}
+
+.grid-row:last-child  > div:first-child {
+	background-color: #FFFFFF;
+}
+
+.grid-row > div.card > p {
+	margin: 0px 0px 0px 50px;
+	color: #F0F2F5;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.grid-row > div.card> p:first-child {
+	margin-top: 40px;
+	margin-bottom: 5px;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.grid-row > div.card> p:nth-child(2) {
+	font-size: 12px;
+}
+
+.grid-row > div.card > div {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	top: 35px;
+	left: calc(50% - 25px - 50px);
+	border: solid 1px #e9eef7;
+	transform: rotateZ(45deg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.grid-row > div.card > div > i {
+	position: absolute;
+	transform: rotateZ(-45deg);
+	font-size: 30px;
+	color: #F2F3F5;
+}
+
+.grid-column-2 {
+	width: 24%;
+}
+
+.grid-column-4 {
+	width: 48%;
+}
+
+.grid-column-6 {
+	width: 74.63%;
+} 
+
+.grid-column-8 {
+	width: 100%;
+}

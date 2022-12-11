@@ -1,5 +1,7 @@
 package com.wedu.ipsp.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wedu.ipsp.domain.ResultInfo;
 import com.wedu.ipsp.domain.User;
 import com.wedu.ipsp.mapper.UserMapper;
@@ -33,7 +35,9 @@ public class UserServiceImpl implements UserService {
         info.setFlag(true);
         try {
             //调用mapper查询
-            User user = userMapper.loginByPhone(userPhone, userPassword);
+            LambdaQueryWrapper<User> queryWrapper=new LambdaQueryWrapper<>();
+           queryWrapper.eq(User::getUserPhone,userPhone).eq(User::getUserPassword,userPassword);
+            User user = userMapper.selectOne(queryWrapper);
             //判断user是否为空
             if (user == null) {
                 //手机号或密码错误

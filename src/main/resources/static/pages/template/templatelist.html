@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>工业互联网标识服务平台</title>
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css">
+		<link rel="stylesheet" href="../../css/ionicons.min.css">
+		<link rel="stylesheet" href="../../css/list.css" />
+		<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+		<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+		<script src="../../js/prompt.js"></script>
+		<script src="../../js/axios.min.js"></script>
+		<script>
+			const App = {
+				data() {
+					return {
+						serverUrl: 'http://192.168.0.122/',
+						searchContent: '',
+						pageTotal: 1,
+						rowTotal: 3,
+						pageNumber: 1,
+						submitStatus: 1,
+						selectionRows: [],
+						alertDesc: '',
+						alertVisible: false,
+						dialogTitle: '',
+						dialogFormVisible: false,
+						dialogVisible: false,
+						formLabelWidth: '70px',
+						form: {
+							tempId: 0,
+							typeId: '',
+							typeName: '',
+							tempNumber: '',
+							tempName: '',
+							tempDesc: '',
+							tempData: []
+						},
+						typeData: [{
+								typeId: 1,
+								typeParentId: '',
+								typeName: '中科文峰企业模板',
+								level: 1
+							},{
+								typeId: 4,
+								typeParentId: 1,
+								typeName: '中科企业模板一',
+								level: 2
+							},{
+								typeId: 5,
+								typeParentId: 1,
+								typeName: '中科企业模板二',
+								level: 2
+							},{
+								typeId: 6,
+								typeParentId: 5,
+								typeName: '自定义模板',
+								level: 3
+							},{
+								typeId: 2,
+								typeParentId: '',
+								typeName: '汇都企业模板',
+								level: 1
+							},{
+								typeId: 3,
+								typeParentId: '',
+								typeName: '戴尔企业模板',
+								level: 1
+							}
+						],
+						tableData: [{
+								tempId: 1,
+								typeId: 4,
+								typeName: '中科企业模板一',
+								tempNumber: 'template_zhongke_001',
+								tempName: '中科企业-数据模板一',
+								tempDesc: '--',
+								operTime: '2022-11-11 16:51:30',
+								tempData: [{
+									type: '4',
+									title: '',
+									value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/product1.jpeg'
+								},{
+									type: '1',
+									title: '',
+									value: '产品介绍'
+								},{
+									type: '1',
+									title: '芯片',
+									value: 'STM32F103VET6  嵌入式 - 微控制器'
+								},{
+									type: '4',
+									title: '',
+									value: 'http://127.0.0.1:8848/tits-ms-v2/uploadfiles/frontoffice1.jpeg'
+								},{
+									type: '1',
+									title: '',
+									value: '公司介绍'
+								},{
+									type: '1',
+									title: '扬州中科文峰科技有限公司',
+									value: '经营范围包括一般项目：技术服务、技术开发、技术咨询、技术交流、技术转让、技术推广。'
+								},{
+									type: '1',
+									title: '公司地址',
+									value: '扬州市生态科技新城杭集镇曙光路579号5号楼'
+								}]
+							},{
+								tempId: 2,
+								typeId: 5,
+								typeName: '中科企业模板二',
+								tempNumber: 'template_zhongke_002',
+								tempName: '中科企业-数据模板二',
+								tempDesc: '--',
+								operTime: '2022-11-11 16:40:55',
+								tempData: [{
+									type: '1',
+									title: 'aaa',
+									value: ''
+								}]
+							},{
+								tempId: 3,
+								typeId: 2,
+								typeName: '汇都企业模板',
+								tempNumber: 'template_huidu_001',
+								tempName: '默认数据模板',
+								tempDesc: '--',
+								operTime: '2022-11-11 16:38:12',
+								tempData: [{
+									type: '1',
+									title: 'aaa',
+									value: ''
+								},{
+									type: '2',
+									title: 'bbb',
+									value: ''
+								}]
+							}
+						]
+					}
+				},
+				mounted() {
+					this.$refs.content.style.display = 'block'
+					this.$refs.dialog.style.display = 'block'
+				},
+				methods: {
+					dialogInit() {
+						this.$refs.typeId.focus()
+						//this.form.typeId = this.typeData[0].typeId
+					},
+					handleSelectionChange(rows) {
+						this.selectionRows = rows
+					},
+					addTempItem() {
+						this.form.tempData.push({
+							type: '1',
+							title: '',
+							value: ''
+						})
+					},
+					delTempItem(item) {
+						let tempData = this.form.tempData
+						for(let i in tempData) {
+							if(tempData[i] == item) {
+								tempData.splice(i, 1)
+								break
+							}
+						}
+					},
+					moveUp(item) {
+						let tempData = this.form.tempData
+						for(let i in tempData) {
+							if(tempData[i] == item && i > 0) {
+								let tmp = tempData[i]
+								tempData[i] = tempData[i-1]
+								tempData[i-1] = tmp
+								break
+							}
+						}
+					},
+					moveDown(item) {
+						let tempData = this.form.tempData
+						for(let i in tempData) {
+							if(tempData[i] == item && i < tempData.length-1) {
+								i = parseInt(i)
+								let tmp = tempData[i]
+								tempData[i] = tempData[i+1]
+								tempData[i+1] = tmp
+								break
+							}
+						}
+					},
+					showItem(item) {
+						let type = item.type
+						let value = item.value
+						if(type == 2 || type == 4 || type == 5) {
+							if(value && value.startsWith('http://')) {
+								let newWindow = window.open(value)
+								if(type == 4 || type == 5) {
+									setTimeout(() => {
+										newWindow.document.title='工业互联网标识服务平台'
+									}, 1000)
+								}
+							}
+						}
+					},
+					search() {
+						alert(this.searchContent)
+					},
+					add() {
+						this.submitStatus = 1
+						this.dialogTitle = '新增用户数据模板'
+						this.dialogFormVisible = true
+						this.form.tempId = 0
+						this.form.typeId = this.typeData[0].typeId
+						this.form.typeName = ''
+						this.form.tempNumber = ''
+						this.form.tempName = ''
+						this.form.tempDesc = ''
+						this.form.tempData = []
+					},
+					view(row) {
+						this.submitStatus = 2
+						this.dialogTitle = '用户数据模板信息'
+						this.dialogFormVisible = true
+						this.form.tempId = row.tempId
+						this.form.typeId = row.typeId
+						this.form.typeName = row.typeName
+						this.form.tempNumber = row.tempNumber
+						this.form.tempName = row.tempName
+						this.form.tempDesc = row.tempDesc
+						this.form.tempData = row.tempData
+					},
+					submit() {
+						let isSubmit = true
+						let focusField = null
+						let tempNumberField = this.$refs.tempNumber.ref
+						let tempNumber = this.form.tempNumber
+						if(!tempNumber) {
+							showErrorMessage(tempNumberField, '请输入模板编号!')
+							isSubmit = false
+							if(!focusField) {
+								focusField = tempNumberField
+							}
+						} else {
+							offErrorMessage(tempNumberField)
+						}
+						if(!isSubmit) {
+							focusField.focus()
+							return
+						}
+						console.log(this.form)
+						alert('新增...');
+						this.dialogFormVisible = false
+					}, 
+					delBatch() {
+						if(this.selectionRows.length < 1) {
+							this.alertDesc = '请至少选择1行数据!'
+							this.alertVisible = true
+							return
+						} 
+						this.alertVisible = false
+						this.dialogVisible = true
+					},
+					delSubmit() {
+						alert('批量删除...')
+						console.log(this.selectionRows)
+						this.dialogVisible = false
+					}
+				}
+			};
+			const app = Vue.createApp(App)
+			app.use(ElementPlus);
+			onload = () => {
+				app.mount("#app");
+			}
+		</script>
+	</head>
+	<body>
+		<div id="app">
+			<div id="header">
+				<span>系统管理</span><span>/用户数据模板</span>
+			</div>
+			<div id="content" ref="content">
+				<div>
+					<div class="btn-group">
+						<el-button type="primary" @click="add()">
+							<i class="icon ion-plus"></i>
+							新增
+						</el-button>
+						<el-button type="danger" @click="delBatch()">
+							<i class="icon ion-trash-a"></i>
+							删除
+						</el-button>
+					</div>
+					<div class="search">
+						<el-input v-model="searchContent" placeholder="请输入模板编号">
+						    <template #append>
+								<el-button type="primary" @click="search()">
+									<i class="icon ion-search" ></i>
+								</el-button>
+							</template>
+						</el-input>
+					</div>
+					<el-table :data="tableData" class="table" 
+						@selection-change="handleSelectionChange">
+						<el-table-column type="selection" width="55">
+						</el-table-column>
+						<el-table-column label="序号" width="60">
+							<template #default="scope">{{ scope.$index + 1 }}</template>
+						</el-table-column>
+						<el-table-column prop="typeName" label="模板类型"></el-table-column>
+						<el-table-column prop="tempNumber" label="模板编号"></el-table-column>
+						<el-table-column prop="tempName" label="模板名称"></el-table-column>
+						<el-table-column prop="operTime" label="操作时间" width="200"></el-table-column>
+						<el-table-column label="操作" width="200" #default="scope">
+							<el-button type="primary" plain @click="view(scope.row)">
+								<i class="icon ion-document-text"></i>
+								查看
+							</el-button>
+						</el-table-column>
+					</el-table>
+					<div class="page-bar">
+						<div class="page-info">
+							共{{rowTotal}}条记录,当前第{{pageNumber}}/{{pageTotal}}页
+						</div>
+						<el-pagination
+						    small
+						    background
+						    layout="prev, pager, next"
+						    :total="pageTotal * 10"
+						    class="mt-4"
+						  />
+					</div>
+				</div>
+			</div>
+			<div id="dialog" ref="dialog">
+				<el-dialog class="template-dialog" v-model="dialogFormVisible" 
+					:title="dialogTitle" @opened="dialogInit()">
+					<el-form :model="form">
+						<el-form-item label="所属类型" :label-width="formLabelWidth" 
+							class="form-column-4 form-column-left">
+							<el-select ref="typeId" v-model="form.typeId" class="m-2"
+								placeholder="根节点" style="width:100%;">
+							    <el-option
+									v-for="item in typeData"
+									:style="'text-indent:' + ((item.level - 1) * 24) + 'px;'"
+									:label="item.typeName"
+									:value="item.typeId">
+								</el-option>
+							</el-select>
+						</el-form-item>
+						<el-form-item label="模板编号" :label-width="formLabelWidth" 
+							class="form-column-4 form-column-right">
+							<el-input ref="tempNumber" v-model="form.tempNumber" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+						<el-form-item label="模板名称" :label-width="formLabelWidth" 
+							class="form-column-4 form-column-left">
+							<el-input ref="tempName" v-model="form.tempName" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+						<el-form-item label="模板说明" :label-width="formLabelWidth" 
+							class="form-column-4 form-column-right">
+							<el-input ref="tempDesc" v-model="form.tempDesc" 
+								autocomplete="off" placeholder="请输入..."/>
+						</el-form-item>
+						<el-divider></el-divider>
+						<el-form-item>
+							<el-button type="default" style="width:100%;border-style:dashed;"
+								@click="addTempItem()">增加一条</el-button>
+						</el-form-item>
+						<el-form-item class="grid">
+							<div class="grid-row">
+								<div class="grid-column-1">序号</div>
+								<div class="grid-column-2">类型</div>
+								<div class="grid-column-15">内容</div>
+								<div class="grid-column-2">操作</div>
+							</div>
+							<div class="grid-row" v-for="(item,index) in form.tempData">
+								<div class="grid-column-1">{{ index + 1 }}</div>
+								<div class="grid-column-2">
+									<el-select v-model="item.type">
+										<el-option label="文本" value="1"></el-option>
+										<el-option label="超链接" value="2"></el-option>
+										<el-option label="HTML" value="3"></el-option>
+										<el-option label="图像" value="4"></el-option>
+										<el-option label="视频" value="5"></el-option>
+									</el-select>
+								</div>
+								<div class="grid-column-5">
+									<el-input v-model="item.title" placeholder="">
+									    <template #prepend>标题</template>
+									</el-input>
+								</div>
+								<div class="grid-column-10">
+									<el-input v-model="item.value" placeholder="">
+									    <template #prepend>
+											{{item.type==1 || item.type==3 ? '值' : 'URL' }}
+										</template>
+										<template #append
+											v-if="item.type==2 || item.type==4 || item.type==5">
+										    <i class="icon ion-eye" @click="showItem(item)"></i>
+										</template>
+									</el-input>
+								</div>
+								<div class="grid-column-2">
+									<el-button type="primary" circle @click="moveUp(item)">
+										<i class="icon ion-arrow-up-a"></i>
+									</el-button>
+									<el-button type="success" circle @click="moveDown(item)">
+										<i class="icon ion-arrow-down-a"></i>
+									</el-button>
+									<el-button type="danger" circle @click="delTempItem(item)">
+										<i class="icon ion-android-delete"></i>
+									</el-button>
+								</div>
+							</div>
+						</el-form-item>
+					</el-form>
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button type="primary" @click="submit()" v-show="submitStatus == 1">
+								确认
+							</el-button>
+							<el-button @click="dialogFormVisible = false">
+								{{ submitStatus == 1 ? '取消' : '关闭' }}
+							</el-button>
+						</span>
+					</template>
+				</el-dialog>
+				<el-dialog v-model="dialogVisible" title="提示" width="30%" draggable>
+					<span>您是否删除选择的数据行?</span>
+					<template #footer>
+					    <span class="dialog-footer">
+						    <el-button @click="dialogVisible = false">取消</el-button>
+						    <el-button type="primary" @click="delSubmit()">
+								确定
+							</el-button>
+					    </span>
+					</template>
+				</el-dialog>
+				<el-alert v-show="alertVisible" @close="alertVisible = false"
+				    title="错误"
+				    type="error"
+				    :description="alertDesc"
+				    show-icon>
+				</el-alert>
+			</div>
+		</div>
+	</body>
+</html>

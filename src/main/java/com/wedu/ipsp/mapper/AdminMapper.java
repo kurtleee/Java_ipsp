@@ -1,21 +1,22 @@
 package com.wedu.ipsp.mapper;
 
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.wedu.ipsp.domain.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 //用户管理 数据访问层
 @Mapper
-@Repository
-public interface AdminMapper {
+public interface AdminMapper extends BaseMapper<User> {
 
     /**
      * 新增用户
      *
-     * @param user
+     * @param
      * @return
      */
     @Insert("insert into t_user(user_account,user_ninkname,user_gender,user_phone,user_email,oper_time) values(#{userAccount},#{userNinkname},#{userGender},#{userPhone},#{userEmail},#{operTime})")

@@ -3,12 +3,14 @@ package com.wedu.ipsp.cotroller;
 import com.wedu.ipsp.domain.ResultInfo;
 import com.wedu.ipsp.domain.User;
 import com.wedu.ipsp.service.impl.AdminServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 //用户管理 控制层
 @RestController//@RestController注释用于定义RESTful Web服务,有了该注解，在响应返回的是json格式的数据，我们就不要写@ResponseBody注解了
 @RequestMapping(value = "/admin")
+@Slf4j
 public class AdminController {
 
     //注入用户服务层
@@ -20,10 +22,12 @@ public class AdminController {
      *
      * @param user 传一个json对象封装user
      * @return
+     *
+     * 、
      */
     @PostMapping(value = "/addUser")
     public ResultInfo addUser(@RequestBody User user) {
-
+        log.info("adduser");
         ResultInfo resultInfo = adminService.addUser(user);
 
         return resultInfo;
@@ -50,7 +54,7 @@ public class AdminController {
      */
     @PutMapping(value = "/updateUser")
     public ResultInfo updateUser(@RequestBody User user) {
-
+            log.info("updateuser");
         ResultInfo resultInfo = adminService.updateUser(user);
 
         return resultInfo;
@@ -74,7 +78,7 @@ public class AdminController {
      *
      * @return
      */
-    @GetMapping(value = "/findAllUser")
+    @GetMapping(value = "/findAllUser/")
     public ResultInfo findAllUser(@RequestParam(value = "pageNum",required = false,defaultValue = "1")int pageNum,
                                   @RequestParam(value = "pageSize",required = false,defaultValue = "5")int pageSize) {
 
